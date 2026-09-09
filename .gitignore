@@ -5,3 +5,6 @@ node_modules/
 # stale OTP backend from the original project (not part of this demo)
 supabase/
 SETUP.md
+
+# Local Netlify folder
+.netlify
