@@ -38,8 +38,8 @@
   .legend{margin-top:18px; font-size:13px; color:#a8a294;}
   .legend b{color:var(--gold-soft);}
 
-  /* larger screens (kiosk / desktop) — scale the whole UI up */
-  @media (min-width:900px){
+  /* portrait kiosk (1080x1920) — scale the whole UI up */
+  @media (min-width:900px) and (orientation:portrait){
     #stage{background:radial-gradient(1400px 760px at 50% -8%, #23232e, #0c0c11 62%);}
     .hud{padding:34px 44px; font-size:32px; letter-spacing:2px;}
     .overlay{padding:60px;}
@@ -53,6 +53,22 @@
     .reward .lbl{font-size:20px; letter-spacing:3px;}
     .reward .amt{font-size:44px; margin:10px 0 16px;}
     .reward .code{font-size:38px; letter-spacing:4px; padding:16px 28px; border-radius:14px;}
+  }
+  /* laptop / desktop (wide, shorter) — moderate scale */
+  @media (min-width:900px) and (orientation:landscape){
+    #stage{background:radial-gradient(1200px 640px at 50% -8%, #23232e, #0c0c11 62%);}
+    .hud{padding:22px 30px; font-size:22px; letter-spacing:2px;}
+    .overlay{padding:48px;}
+    .brand{margin-bottom:14px;} .brand svg{height:30px;}
+    h1{font-size:48px; margin:10px 0 6px; letter-spacing:2px;}
+    p{font-size:20px; line-height:1.6; max-width:600px; margin-top:14px;}
+    .btn{margin-top:30px; padding:20px 60px; font-size:24px; letter-spacing:2px;}
+    .legend{margin-top:26px; font-size:18px;}
+    .score-big{font-size:92px; margin:16px 0;}
+    .reward{margin-top:26px; padding:28px 36px; border-radius:22px;}
+    .reward .lbl{font-size:16px; letter-spacing:3px;}
+    .reward .amt{font-size:34px; margin:8px 0 12px;}
+    .reward .code{font-size:30px; letter-spacing:3px; padding:14px 22px; border-radius:12px;}
   }
 </style>
 </head>
@@ -94,7 +110,7 @@ let W, H, DPR, SCALE = 1;
 function resize(){
   DPR = Math.min(window.devicePixelRatio||1, 2);
   W = window.innerWidth || 375; H = window.innerHeight || 667;
-  SCALE = Math.min(2.1, Math.max(1, W / 560));
+  SCALE = Math.min(2.1, Math.max(1, Math.min(W, H) / 560));
   cv.width = W*DPR; cv.height = H*DPR;
   cx.setTransform(DPR,0,0,DPR,0,0);
 }
