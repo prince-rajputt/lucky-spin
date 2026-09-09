@@ -76,7 +76,7 @@
 <div id="stage">
   <div class="hud">
     <div>SCORE <span class="v" id="score">0</span></div>
-    <div>TIME <span class="v" id="time">30</span></div>
+    <div>TIME <span class="v" id="time">20</span></div>
   </div>
   <canvas id="c"></canvas>
 
@@ -84,7 +84,7 @@
     <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 22" role="img" aria-label="TITAN"><g transform="translate(35.939)"><path d="M192.95-.01h0V1.676h-6.783V20.345h-3.525V1.676h-6.8V-.01H192.95Zm53.948,0h1.928L262.2,14.521V-.01h1.7V20.344h-.794L248.6,4.215v16.2l-1.7.039V-.01ZM228.662,12.467H236.1l-3.6-7.9ZM233.71-.01h0l9.7,20.436h-3.518l-3.148-6.669h-8.685L224.8,20.426h-1.869L232.853-.01h.856Zm-10.425,0H206.178V1.676h6.8V20.345H216.5V1.676h6.783V-.01ZM197.8-.01h3.525V20.345H197.8Z" transform="translate(-175.843 0.01)" fill="currentColor" fill-rule="evenodd"/></g><path d="M21.455,7.37c1.9,4.492-.858,11.057-5.3,12.625V2.924h7.05L25.071-.01H13.127l0,20.486V21.99c6.188-.393,11.855-5.327,11.855-11.58a11.938,11.938,0,0,0-.4-3.04H21.455ZM11.928-.01H-.01L1.848,2.924H8.9v17.07C4.5,18.442,1.631,11.771,3.614,7.37H.467a11.946,11.946,0,0,0-.4,3.04c0,6.253,5.667,11.187,11.855,11.58V20.476l0-20.486Z" transform="translate(0.01 0.01)" fill="currentColor" fill-rule="evenodd"/></svg></div>
     <h1>Time <b>Rush</b></h1>
     <p>Tap the falling <b>watches</b> to collect them. Catch a golden <b>Nebula</b> for bonus points.
-       Avoid the <b>cracked</b> ones — they cost you. You have 30 seconds.</p>
+       Avoid the <b>cracked</b> ones — they cost you. You have 20 seconds.</p>
     <button class="btn" id="startBtn">Start</button>
     <div class="legend">🟡 Watch +1 &nbsp;·&nbsp; ✨ Nebula +5 &nbsp;·&nbsp; 💥 Cracked −3</div>
   </div>
@@ -116,7 +116,7 @@ function resize(){
 }
 window.addEventListener('resize', resize); resize();
 
-const S = { score:0, time:30, running:false, items:[], spawn:0, last:0, t:0 };
+const S = { score:0, time:20, running:false, items:[], spawn:0, last:0, t:0 };
 const scoreEl = document.getElementById('score');
 const timeEl  = document.getElementById('time');
 
@@ -216,8 +216,8 @@ cv.addEventListener('pointerdown', e=>{
 
 function startGame(){
   resize();
-  S.score=0; S.time=30; S.t=0; S.items=[]; S.spawn=0; S.running=true; S.last=performance.now();
-  scoreEl.textContent='0'; timeEl.textContent='30';
+  S.score=0; S.time=20; S.t=0; S.items=[]; S.spawn=0; S.running=true; S.last=performance.now();
+  scoreEl.textContent='0'; timeEl.textContent='20';
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('endScreen').classList.add('hidden');
   requestAnimationFrame(tick);
@@ -225,10 +225,10 @@ function startGame(){
 
 function reward(score){
   const rnd = Math.random().toString(36).slice(2,6).toUpperCase();
-  if(score >= 45) return {amt:'25% OFF', code:'RUSH25-'+rnd};
-  if(score >= 30) return {amt:'20% OFF', code:'RUSH20-'+rnd};
-  if(score >= 18) return {amt:'15% OFF', code:'RUSH15-'+rnd};
-  if(score >= 8)  return {amt:'10% OFF', code:'RUSH10-'+rnd};
+  if(score >= 30) return {amt:'25% OFF', code:'RUSH25-'+rnd};
+  if(score >= 20) return {amt:'20% OFF', code:'RUSH20-'+rnd};
+  if(score >= 12) return {amt:'15% OFF', code:'RUSH15-'+rnd};
+  if(score >= 5)  return {amt:'10% OFF', code:'RUSH10-'+rnd};
   return {amt:'5% OFF', code:'RUSH05-'+rnd};
 }
 function endGame(){
