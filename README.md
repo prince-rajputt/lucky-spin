@@ -15,15 +15,19 @@ no backend — just static HTML/CSS/JS.
 ## Run it
 
 ```bash
-npx serve public -l 4599
+npx serve . -l 4599
 ```
 
 Then open <http://localhost:4599>. For the kiosk, load it full-screen on a 1080×1920 portrait display.
 
+## Deploy
+
+Static site — deployed on Netlify from `main` (publish directory: repo root, see `netlify.toml`).
+
 ## Files
 
-- `public/index.html` — the whole site (carousel, spin wheel, product grid, modal).
-- `public/game.html` — the standalone *Titan Time Rush* game (embedded by the Play & Win page).
+- `index.html` — the whole site (carousel, spin wheel, product grid, modal).
+- `game.html` — the standalone *Titan Time Rush* game (embedded by the Play & Win page).
 
 ## Notes
 
