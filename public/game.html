@@ -20,8 +20,8 @@
     justify-content:center; text-align:center; padding:28px; z-index:10;
     background:rgba(8,8,12,.82); backdrop-filter:blur(3px);}
   .overlay.hidden{display:none;}
-  .brand{font-weight:800; letter-spacing:6px; font-size:18px; margin-bottom:6px;}
-  .brand span{color:var(--crimson);}
+  .brand{margin-bottom:10px; color:var(--text);}
+  .brand svg{height:22px; width:auto; display:block; margin:0 auto;}
   h1{font-size:30px; margin:6px 0 4px; letter-spacing:1px;}
   h1 b{color:var(--gold);}
   p{color:#a8a294; line-height:1.6; margin:8px 0 0; max-width:320px; font-size:14px;}
@@ -37,6 +37,23 @@
     background:#141414; border:1px solid #2c2c38; padding:8px 14px; border-radius:10px; display:inline-block;}
   .legend{margin-top:18px; font-size:13px; color:#a8a294;}
   .legend b{color:var(--gold-soft);}
+
+  /* larger screens (kiosk / desktop) — scale the whole UI up */
+  @media (min-width:900px){
+    #stage{background:radial-gradient(1400px 760px at 50% -8%, #23232e, #0c0c11 62%);}
+    .hud{padding:34px 44px; font-size:32px; letter-spacing:2px;}
+    .overlay{padding:60px;}
+    .brand{margin-bottom:20px;} .brand svg{height:40px;}
+    h1{font-size:76px; margin:14px 0 10px; letter-spacing:2px;}
+    p{font-size:28px; line-height:1.7; max-width:680px; margin-top:18px;}
+    .btn{margin-top:44px; padding:28px 84px; font-size:32px; letter-spacing:2px; border-radius:999px;}
+    .legend{margin-top:40px; font-size:26px;}
+    .score-big{font-size:130px; margin:24px 0;}
+    .reward{margin-top:40px; padding:38px 48px; border-radius:26px;}
+    .reward .lbl{font-size:20px; letter-spacing:3px;}
+    .reward .amt{font-size:44px; margin:10px 0 16px;}
+    .reward .code{font-size:38px; letter-spacing:4px; padding:16px 28px; border-radius:14px;}
+  }
 </style>
 </head>
 <body>
@@ -48,7 +65,7 @@
   <canvas id="c"></canvas>
 
   <div class="overlay" id="startScreen">
-    <div class="brand">TITAN<span>.</span></div>
+    <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 22" role="img" aria-label="TITAN"><g transform="translate(35.939)"><path d="M192.95-.01h0V1.676h-6.783V20.345h-3.525V1.676h-6.8V-.01H192.95Zm53.948,0h1.928L262.2,14.521V-.01h1.7V20.344h-.794L248.6,4.215v16.2l-1.7.039V-.01ZM228.662,12.467H236.1l-3.6-7.9ZM233.71-.01h0l9.7,20.436h-3.518l-3.148-6.669h-8.685L224.8,20.426h-1.869L232.853-.01h.856Zm-10.425,0H206.178V1.676h6.8V20.345H216.5V1.676h6.783V-.01ZM197.8-.01h3.525V20.345H197.8Z" transform="translate(-175.843 0.01)" fill="currentColor" fill-rule="evenodd"/></g><path d="M21.455,7.37c1.9,4.492-.858,11.057-5.3,12.625V2.924h7.05L25.071-.01H13.127l0,20.486V21.99c6.188-.393,11.855-5.327,11.855-11.58a11.938,11.938,0,0,0-.4-3.04H21.455ZM11.928-.01H-.01L1.848,2.924H8.9v17.07C4.5,18.442,1.631,11.771,3.614,7.37H.467a11.946,11.946,0,0,0-.4,3.04c0,6.253,5.667,11.187,11.855,11.58V20.476l0-20.486Z" transform="translate(0.01 0.01)" fill="currentColor" fill-rule="evenodd"/></svg></div>
     <h1>Time <b>Rush</b></h1>
     <p>Tap the falling <b>watches</b> to collect them. Catch a golden <b>Nebula</b> for bonus points.
        Avoid the <b>cracked</b> ones — they cost you. You have 30 seconds.</p>
@@ -57,7 +74,7 @@
   </div>
 
   <div class="overlay hidden" id="endScreen">
-    <div class="brand">TITAN<span>.</span></div>
+    <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 22" role="img" aria-label="TITAN"><g transform="translate(35.939)"><path d="M192.95-.01h0V1.676h-6.783V20.345h-3.525V1.676h-6.8V-.01H192.95Zm53.948,0h1.928L262.2,14.521V-.01h1.7V20.344h-.794L248.6,4.215v16.2l-1.7.039V-.01ZM228.662,12.467H236.1l-3.6-7.9ZM233.71-.01h0l9.7,20.436h-3.518l-3.148-6.669h-8.685L224.8,20.426h-1.869L232.853-.01h.856Zm-10.425,0H206.178V1.676h6.8V20.345H216.5V1.676h6.783V-.01ZM197.8-.01h3.525V20.345H197.8Z" transform="translate(-175.843 0.01)" fill="currentColor" fill-rule="evenodd"/></g><path d="M21.455,7.37c1.9,4.492-.858,11.057-5.3,12.625V2.924h7.05L25.071-.01H13.127l0,20.486V21.99c6.188-.393,11.855-5.327,11.855-11.58a11.938,11.938,0,0,0-.4-3.04H21.455ZM11.928-.01H-.01L1.848,2.924H8.9v17.07C4.5,18.442,1.631,11.771,3.614,7.37H.467a11.946,11.946,0,0,0-.4,3.04c0,6.253,5.667,11.187,11.855,11.58V20.476l0-20.486Z" transform="translate(0.01 0.01)" fill="currentColor" fill-rule="evenodd"/></svg></div>
     <h1>Time's <b>Up</b></h1>
     <div class="score-big" id="finalScore">0</div>
     <div class="reward">
@@ -73,10 +90,11 @@
 <script>
 const cv = document.getElementById('c');
 const cx = cv.getContext('2d');
-let W, H, DPR;
+let W, H, DPR, SCALE = 1;
 function resize(){
   DPR = Math.min(window.devicePixelRatio||1, 2);
-  W = window.innerWidth; H = window.innerHeight;
+  W = window.innerWidth || 375; H = window.innerHeight || 667;
+  SCALE = Math.min(2.1, Math.max(1, W / 560));
   cv.width = W*DPR; cv.height = H*DPR;
   cx.setTransform(DPR,0,0,DPR,0,0);
 }
@@ -88,7 +106,6 @@ const timeEl  = document.getElementById('time');
 
 function rand(a,b){ return a + Math.random()*(b-a); }
 
-const SCALE = Math.max(1, Math.min(W, H) / 430);
 function makeItem(){
   const r = Math.random();
   let type = 'watch';
@@ -97,7 +114,7 @@ function makeItem(){
   const size = (type==='nebula' ? 34 : 30) * SCALE;
   return {
     x: rand(size, W-size), y: -size,
-    vy: rand(90, 160) + S.t*3,
+    vy: (rand(90, 160) + S.t*3) * SCALE,
     rot: rand(0,Math.PI*2), vr: rand(-2,2),
     size, type, dead:false, pop:0
   };
@@ -140,7 +157,7 @@ function tick(now){
   timeEl.textContent = Math.ceil(S.time);
 
   S.spawn -= dt;
-  if(S.spawn <= 0){ S.items.push(makeItem()); S.spawn = rand(0.32, 0.6); }
+  if(S.spawn <= 0){ S.items.push(makeItem()); S.spawn = rand(0.32, 0.6) / (0.7 + SCALE*0.5); }
 
   cx.clearRect(0,0,W,H);
   for(const it of S.items){
@@ -150,7 +167,7 @@ function tick(now){
       cx.save(); cx.globalAlpha = Math.max(0,1-it.pop);
       cx.translate(it.x,it.y); cx.scale(1+it.pop,1+it.pop);
       cx.fillStyle = it.gain>0 ? '#e7c86b' : '#e0322e';
-      cx.font = 'bold 22px Segoe UI, Arial'; cx.textAlign='center';
+      cx.font = 'bold ' + Math.round(22*SCALE) + 'px Segoe UI, Arial'; cx.textAlign='center';
       cx.fillText((it.gain>0?'+':'')+it.gain, 0, 0); cx.restore();
     } else {
       drawWatch(it);
@@ -166,7 +183,7 @@ function hit(px,py){
     const it = S.items[i];
     if(it.dead) continue;
     const d = Math.hypot(px-it.x, py-it.y);
-    if(d <= it.size+14){
+    if(d <= it.size + 14*SCALE){
       let gain = it.type==='nebula' ? 5 : (it.type==='cracked' ? -3 : 1);
       S.score = Math.max(0, S.score + gain);
       scoreEl.textContent = S.score;
@@ -182,6 +199,7 @@ cv.addEventListener('pointerdown', e=>{
 });
 
 function startGame(){
+  resize();
   S.score=0; S.time=30; S.t=0; S.items=[]; S.spawn=0; S.running=true; S.last=performance.now();
   scoreEl.textContent='0'; timeEl.textContent='30';
   document.getElementById('startScreen').classList.add('hidden');

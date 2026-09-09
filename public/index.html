@@ -23,8 +23,8 @@
     padding:18px 28px; border-bottom:1px solid var(--line);
     position:sticky; top:0; background:rgba(14,14,18,.85); backdrop-filter:blur(8px); z-index:20;
   }
-  .brand{font-weight:800; letter-spacing:6px; font-size:20px; color:var(--text);}
-  .brand span{color:var(--crimson);}
+  .brand{display:flex; align-items:center; color:var(--text);}
+  .brand svg{height:26px; width:auto; display:block;}
   nav{display:flex; gap:6px; flex-wrap:wrap;}
   nav button{
     background:none; border:1px solid transparent; color:var(--muted);
@@ -178,7 +178,7 @@
   /* ---------- mobile ---------- */
   @media (max-width:720px){
     header{flex-direction:column; gap:12px; padding:14px 16px;}
-    .brand{font-size:18px; letter-spacing:4px;}
+    .brand svg{height:20px;}
     nav{width:100%; justify-content:center;}
     nav button{padding:8px 12px; font-size:12px; letter-spacing:.5px;}
     main{padding:26px 16px 64px;}
@@ -218,7 +218,7 @@
     header{position:fixed; top:0; left:0; right:0; z-index:30; border:0;
       background:linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.15) 70%, transparent);
       padding:24px 44px; backdrop-filter:none;}
-    .brand{font-size:30px; letter-spacing:7px;}
+    .brand svg{height:32px;}
     nav{gap:8px;}
     nav button{font-size:15px; padding:12px 18px; letter-spacing:1px;
       background:rgba(0,0,0,.35);}
@@ -296,7 +296,7 @@
 </head>
 <body>
 <header>
-  <div class="brand">TITAN<span>.</span></div>
+  <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 22" role="img" aria-label="TITAN"><g transform="translate(35.939)"><path d="M192.95-.01h0V1.676h-6.783V20.345h-3.525V1.676h-6.8V-.01H192.95Zm53.948,0h1.928L262.2,14.521V-.01h1.7V20.344h-.794L248.6,4.215v16.2l-1.7.039V-.01ZM228.662,12.467H236.1l-3.6-7.9ZM233.71-.01h0l9.7,20.436h-3.518l-3.148-6.669h-8.685L224.8,20.426h-1.869L232.853-.01h.856Zm-10.425,0H206.178V1.676h6.8V20.345H216.5V1.676h6.783V-.01ZM197.8-.01h3.525V20.345H197.8Z" transform="translate(-175.843 0.01)" fill="currentColor" fill-rule="evenodd"/></g><path d="M21.455,7.37c1.9,4.492-.858,11.057-5.3,12.625V2.924h7.05L25.071-.01H13.127l0,20.486V21.99c6.188-.393,11.855-5.327,11.855-11.58a11.938,11.938,0,0,0-.4-3.04H21.455ZM11.928-.01H-.01L1.848,2.924H8.9v17.07C4.5,18.442,1.631,11.771,3.614,7.37H.467a11.946,11.946,0,0,0-.4,3.04c0,6.253,5.667,11.187,11.855,11.58V20.476l0-20.486Z" transform="translate(0.01 0.01)" fill="currentColor" fill-rule="evenodd"/></svg></div>
   <nav>
     <button data-page="watches" class="active">Watches</button>
     <button data-page="spin">Lucky Spin</button>
