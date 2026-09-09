@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Titan Time Rush</title>
+<style>
+  :root{ --gold:#c9a227; --gold-soft:#e7c86b; --crimson:#e0322e; --text:#f4f1e9; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%; overflow:hidden; background:#0c0c11;}
+  body{font-family:"Segoe UI",-apple-system,Roboto,Arial,sans-serif; color:var(--text);
+       user-select:none; touch-action:none;}
+  #stage{position:relative; width:100vw; height:100vh;
+    background:radial-gradient(700px 380px at 50% -8%, #23232e, #0c0c11 62%);}
+  .hud{position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between;
+    padding:16px 18px; font-weight:800; letter-spacing:1px; z-index:5; font-size:15px;}
+  .hud .v{color:var(--gold-soft);}
+  canvas{position:absolute; inset:0; width:100%; height:100%;}
+  .overlay{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:28px; z-index:10;
+    background:rgba(8,8,12,.82); backdrop-filter:blur(3px);}
+  .overlay.hidden{display:none;}
+  .brand{font-weight:800; letter-spacing:6px; font-size:18px; margin-bottom:6px;}
+  .brand span{color:var(--crimson);}
+  h1{font-size:30px; margin:6px 0 4px; letter-spacing:1px;}
+  h1 b{color:var(--gold);}
+  p{color:#a8a294; line-height:1.6; margin:8px 0 0; max-width:320px; font-size:14px;}
+  .btn{margin-top:22px; padding:15px 40px; font-size:16px; font-weight:800; letter-spacing:1px;
+    text-transform:uppercase; border:0; border-radius:999px; background:var(--gold); color:#141414; cursor:pointer;}
+  .btn:active{transform:scale(.97);}
+  .score-big{font-size:54px; font-weight:800; color:var(--gold-soft); margin:10px 0;}
+  .reward{margin-top:18px; padding:18px 22px; border:1px dashed var(--gold);
+    border-radius:16px; background:rgba(201,162,39,.08);}
+  .reward .lbl{font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#a8a294;}
+  .reward .amt{font-size:22px; font-weight:800; color:var(--gold-soft); margin:4px 0 8px;}
+  .reward .code{font-family:"Courier New",monospace; font-size:20px; letter-spacing:3px;
+    background:#141414; border:1px solid #2c2c38; padding:8px 14px; border-radius:10px; display:inline-block;}
+  .legend{margin-top:18px; font-size:13px; color:#a8a294;}
+  .legend b{color:var(--gold-soft);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="hud">
+    <div>SCORE <span class="v" id="score">0</span></div>
+    <div>TIME <span class="v" id="time">30</span></div>
+  </div>
+  <canvas id="c"></canvas>
+
+  <div class="overlay" id="startScreen">
+    <div class="brand">TITAN<span>.</span></div>
+    <h1>Time <b>Rush</b></h1>
+    <p>Tap the falling <b>watches</b> to collect them. Catch a golden <b>Nebula</b> for bonus points.
+       Avoid the <b>cracked</b> ones — they cost you. You have 30 seconds.</p>
+    <button class="btn" id="startBtn">Start</button>
+    <div class="legend">🟡 Watch +1 &nbsp;·&nbsp; ✨ Nebula +5 &nbsp;·&nbsp; 💥 Cracked −3</div>
+  </div>
+
+  <div class="overlay hidden" id="endScreen">
+    <div class="brand">TITAN<span>.</span></div>
+    <h1>Time's <b>Up</b></h1>
+    <div class="score-big" id="finalScore">0</div>
+    <div class="reward">
+      <div class="lbl">Your bonus reward</div>
+      <div class="amt" id="rewardAmt">—</div>
+      <div class="code" id="rewardCode">—</div>
+    </div>
+    <p id="rewardHint">Screenshot this code and show it at a Titan World store.</p>
+    <button class="btn" id="againBtn">Play again</button>
+  </div>
+</div>
+
+<script>
+const cv = document.getElementById('c');
+const cx = cv.getContext('2d');
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize); resize();
+
+const S = { score:0, time:30, running:false, items:[], spawn:0, last:0, t:0 };
+const scoreEl = document.getElementById('score');
+const timeEl  = document.getElementById('time');
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+
+const SCALE = Math.max(1, Math.min(W, H) / 430);
+function makeItem(){
+  const r = Math.random();
+  let type = 'watch';
+  if(r > 0.88) type = 'nebula';
+  else if(r > 0.66) type = 'cracked';
+  const size = (type==='nebula' ? 34 : 30) * SCALE;
+  return {
+    x: rand(size, W-size), y: -size,
+    vy: rand(90, 160) + S.t*3,
+    rot: rand(0,Math.PI*2), vr: rand(-2,2),
+    size, type, dead:false, pop:0
+  };
+}
+
+function drawWatch(it){
+  const {x,y,size,rot,type} = it;
+  cx.save(); cx.translate(x,y); cx.rotate(rot);
+  const face = type==='nebula' ? '#1c1305' : (type==='cracked' ? '#1a1a1a' : '#101018');
+  const ring = type==='nebula' ? '#e7c86b' : (type==='cracked' ? '#555' : '#c9a227');
+  // strap
+  cx.fillStyle = type==='cracked' ? '#333' : '#8a6d1f';
+  cx.fillRect(-size*0.34, -size*1.25, size*0.68, size*0.7);
+  cx.fillRect(-size*0.34,  size*0.55, size*0.68, size*0.7);
+  // case
+  cx.beginPath(); cx.arc(0,0,size,0,Math.PI*2);
+  cx.fillStyle = face; cx.fill();
+  cx.lineWidth = 4; cx.strokeStyle = ring; cx.stroke();
+  // hands
+  cx.strokeStyle = ring; cx.lineWidth = 3; cx.lineCap='round';
+  cx.beginPath(); cx.moveTo(0,0); cx.lineTo(0,-size*0.55); cx.stroke();
+  cx.beginPath(); cx.moveTo(0,0); cx.lineTo(size*0.4,size*0.25); cx.stroke();
+  if(type==='nebula'){
+    cx.fillStyle='#e7c86b';
+    for(let i=0;i<3;i++){ cx.beginPath(); cx.arc(rand(-size,size)*0.6, rand(-size,size)*0.6, 1.6, 0, Math.PI*2); cx.fill(); }
+  }
+  if(type==='cracked'){
+    cx.strokeStyle='#e0322e'; cx.lineWidth=2;
+    cx.beginPath(); cx.moveTo(-size*0.6,-size*0.3); cx.lineTo(0,0); cx.lineTo(size*0.5,-size*0.5);
+    cx.moveTo(0,0); cx.lineTo(-size*0.2,size*0.7); cx.stroke();
+  }
+  cx.restore();
+}
+
+function tick(now){
+  if(!S.running) return;
+  const dt = Math.min(0.05,(now - S.last)/1000 || 0); S.last = now;
+  S.t += dt; S.time -= dt;
+  if(S.time <= 0){ S.time = 0; endGame(); }
+  timeEl.textContent = Math.ceil(S.time);
+
+  S.spawn -= dt;
+  if(S.spawn <= 0){ S.items.push(makeItem()); S.spawn = rand(0.32, 0.6); }
+
+  cx.clearRect(0,0,W,H);
+  for(const it of S.items){
+    if(it.dead){ it.pop += dt*4; }
+    else { it.y += it.vy*dt; it.rot += it.vr*dt; }
+    if(it.dead){
+      cx.save(); cx.globalAlpha = Math.max(0,1-it.pop);
+      cx.translate(it.x,it.y); cx.scale(1+it.pop,1+it.pop);
+      cx.fillStyle = it.gain>0 ? '#e7c86b' : '#e0322e';
+      cx.font = 'bold 22px Segoe UI, Arial'; cx.textAlign='center';
+      cx.fillText((it.gain>0?'+':'')+it.gain, 0, 0); cx.restore();
+    } else {
+      drawWatch(it);
+    }
+  }
+  S.items = S.items.filter(it => it.y < H+60 && it.pop < 1);
+  requestAnimationFrame(tick);
+}
+
+function hit(px,py){
+  if(!S.running) return;
+  for(let i=S.items.length-1;i>=0;i--){
+    const it = S.items[i];
+    if(it.dead) continue;
+    const d = Math.hypot(px-it.x, py-it.y);
+    if(d <= it.size+14){
+      let gain = it.type==='nebula' ? 5 : (it.type==='cracked' ? -3 : 1);
+      S.score = Math.max(0, S.score + gain);
+      scoreEl.textContent = S.score;
+      it.dead = true; it.gain = gain; it.pop = 0;
+      if(navigator.vibrate) navigator.vibrate(gain>0?20:40);
+      return;
+    }
+  }
+}
+cv.addEventListener('pointerdown', e=>{
+  const r = cv.getBoundingClientRect();
+  hit(e.clientX-r.left, e.clientY-r.top);
+});
+
+function startGame(){
+  S.score=0; S.time=30; S.t=0; S.items=[]; S.spawn=0; S.running=true; S.last=performance.now();
+  scoreEl.textContent='0'; timeEl.textContent='30';
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.add('hidden');
+  requestAnimationFrame(tick);
+}
+
+function reward(score){
+  const rnd = Math.random().toString(36).slice(2,6).toUpperCase();
+  if(score >= 45) return {amt:'25% OFF', code:'RUSH25-'+rnd};
+  if(score >= 30) return {amt:'20% OFF', code:'RUSH20-'+rnd};
+  if(score >= 18) return {amt:'15% OFF', code:'RUSH15-'+rnd};
+  if(score >= 8)  return {amt:'10% OFF', code:'RUSH10-'+rnd};
+  return {amt:'5% OFF', code:'RUSH05-'+rnd};
+}
+function endGame(){
+  S.running = false;
+  const rw = reward(S.score);
+  document.getElementById('finalScore').textContent = S.score;
+  document.getElementById('rewardAmt').textContent = rw.amt;
+  document.getElementById('rewardCode').textContent = rw.code;
+  document.getElementById('endScreen').classList.remove('hidden');
+}
+
+document.getElementById('startBtn').onclick = startGame;
+document.getElementById('againBtn').onclick = startGame;
+</script>
+</body>
+</html>

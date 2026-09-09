@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+*.log
+
+# stale OTP backend from the original project (not part of this demo)
+supabase/
+SETUP.md

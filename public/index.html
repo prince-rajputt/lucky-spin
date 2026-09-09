@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Titan — Demo</title>
+<style>
+  :root{
+    --bg:#0e0e12; --bg2:#16161d; --card:#1c1c25; --line:#2c2c38;
+    --gold:#c9a227; --gold-soft:#e7c86b; --crimson:#e0322e; --text:#f4f1e9;
+    --muted:#9b9689;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%, #23232e 0%, var(--bg) 60%);
+    color:var(--text); min-height:100vh;
+    font-family:"Segoe UI",-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  }
+  a{color:inherit;}
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px; border-bottom:1px solid var(--line);
+    position:sticky; top:0; background:rgba(14,14,18,.85); backdrop-filter:blur(8px); z-index:20;
+  }
+  .brand{font-weight:800; letter-spacing:6px; font-size:20px; color:var(--text);}
+  .brand span{color:var(--crimson);}
+  nav{display:flex; gap:6px; flex-wrap:wrap;}
+  nav button{
+    background:none; border:1px solid transparent; color:var(--muted);
+    padding:9px 16px; border-radius:999px; cursor:pointer; font-size:13px; letter-spacing:1px;
+    text-transform:uppercase; font-weight:600; transition:.2s;
+  }
+  nav button:hover{color:var(--text);}
+  nav button.active{color:var(--bg); background:var(--gold); border-color:var(--gold);}
+  main{max-width:1080px; margin:0 auto; padding:40px 24px 80px;}
+  .page{display:none; animation:fade .4s ease;}
+  .page.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
+  h1.title{font-size:34px; margin:0 0 6px; letter-spacing:1px;}
+  h1.title b{color:var(--gold);}
+  p.lead{color:var(--muted); margin:0 0 34px; font-size:15px;}
+
+  /* ---------- Page 1: watches ---------- */
+  .hero{
+    display:flex; gap:28px; align-items:center; flex-wrap:wrap;
+    background:linear-gradient(120deg,#1e1e28,#14141b); border:1px solid var(--line);
+    border-radius:20px; padding:34px; margin-bottom:40px;
+  }
+  .hero .copy{flex:1 1 280px;}
+  .hero h2{font-size:26px; margin:0 0 10px;}
+  .hero p{color:var(--muted); margin:0 0 18px; line-height:1.6;}
+  .pill{display:inline-block; padding:7px 14px; border:1px solid var(--gold);
+    color:var(--gold-soft); border-radius:999px; font-size:12px; letter-spacing:2px; text-transform:uppercase;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:22px;}
+  .watch{
+    background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px;
+    text-align:center; transition:.25s; cursor:default;
+  }
+  .watch:hover{transform:translateY(-6px); border-color:var(--gold);}
+  .watch svg{width:130px; height:130px;}
+  .watch h3{margin:12px 0 2px; font-size:16px; letter-spacing:1px;}
+  .watch .collection{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:2px;}
+  .watch .price{color:var(--gold-soft); font-weight:700; margin-top:8px; font-size:14px;}
+
+  /* ---------- banner carousel ---------- */
+  .carousel{position:relative; border-radius:20px; overflow:hidden; margin-bottom:40px;
+    border:1px solid var(--line); background:#000;}
+  .slides{display:flex; transition:transform .5s ease;}
+  .slides a{flex:0 0 100%; display:block;}
+  .slides img{width:100%; height:clamp(220px,42vw,460px); object-fit:cover; display:block;}
+  .c-nav{position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px;
+    border:0; border-radius:50%; background:rgba(0,0,0,.5); color:#fff; font-size:24px; cursor:pointer; z-index:2;}
+  .c-nav:hover{background:rgba(0,0,0,.8);}
+  .c-nav.prev{left:14px;} .c-nav.next{right:14px;}
+  .dots{position:absolute; bottom:14px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:2;}
+  .dots i{width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.4); cursor:pointer;}
+  .dots i.on{background:var(--gold); width:22px; border-radius:5px;}
+
+  /* ---------- collection tiles ---------- */
+  .coll-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:18px;}
+  .coll{position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--line);
+    aspect-ratio:3/4; cursor:pointer; transition:.25s;}
+  .coll:hover{transform:translateY(-5px); border-color:var(--gold);}
+  .coll img{width:100%; height:100%; object-fit:cover; display:block;}
+  .coll span{position:absolute; left:0; right:0; bottom:0; padding:14px 12px;
+    background:linear-gradient(transparent, rgba(0,0,0,.82)); color:#fff; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; font-size:13px;}
+
+  /* ---------- product cards ---------- */
+  .prod-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:22px;}
+  .prod{background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+    cursor:pointer; transition:.25s; display:flex; flex-direction:column;}
+  .prod:hover{transform:translateY(-6px); border-color:var(--gold);}
+  .prod .pic{background:#f0f0f2; aspect-ratio:1/1; overflow:hidden;}
+  .prod .pic img{width:100%; height:100%; object-fit:cover;}
+  .prod .body{padding:16px 16px 18px;}
+  .prod .nm{font-size:14px; font-weight:700; line-height:1.35; min-height:38px;}
+  .prod .sb{color:var(--muted); font-size:12px; margin-top:4px;}
+  .prod .pr{margin-top:10px; font-size:16px; font-weight:800; color:var(--gold-soft);}
+  .prod .pr s{color:var(--muted); font-weight:500; font-size:13px; margin-left:6px;}
+  .prod .pr em{color:var(--crimson); font-style:normal; font-size:12px; margin-left:6px; font-weight:700;}
+
+  /* ---------- modal ---------- */
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:50;}
+  .modal-card{background:var(--card); border:1px solid var(--line); border-radius:22px; max-width:760px;
+    width:100%; display:flex; gap:0; overflow:hidden; max-height:92vh; position:relative;}
+  .modal-media{flex:0 0 320px; align-self:stretch; background:#f0f0f2; position:relative; overflow:hidden;}
+  .modal-media img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;}
+  .modal-body{flex:1; padding:30px; overflow-y:auto; min-width:0;}
+  .modal-body .m-sub{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:2px;}
+  .modal-body h3{margin:8px 0 12px; font-size:22px;}
+  .m-price{font-size:22px; font-weight:800; color:var(--gold-soft); margin-bottom:14px;}
+  .m-price s{color:var(--muted); font-weight:500; font-size:16px; margin-left:8px;}
+  .m-price em{color:var(--crimson); font-style:normal; font-size:14px; margin-left:8px;}
+  .modal-body p{color:var(--muted); line-height:1.7; font-size:14px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 22px;}
+  .chips b{background:var(--bg2); border:1px solid var(--line); border-radius:999px;
+    padding:6px 12px; font-size:12px; font-weight:600; color:var(--text);}
+  .modal-x{position:absolute; top:12px; right:14px; background:rgba(0,0,0,.4); border:0; color:#fff;
+    width:34px; height:34px; border-radius:50%; font-size:20px; cursor:pointer; z-index:2;}
+
+  /* ---------- Page 2: spin ---------- */
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:20px;
+    padding:30px; max-width:460px; margin:0 auto;
+  }
+  label{display:block; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 8px;}
+  input{
+    width:100%; padding:13px 15px; font-size:16px; border-radius:12px;
+    border:1px solid var(--line); background:var(--bg2); color:var(--text); outline:none;
+  }
+  input:focus{border-color:var(--gold);}
+  .btn{
+    width:100%; margin-top:16px; padding:13px; font-size:15px; font-weight:700; letter-spacing:1px;
+    border:0; border-radius:12px; cursor:pointer; text-transform:uppercase;
+    background:var(--gold); color:#141414;
+  }
+  .btn:hover{background:var(--gold-soft);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .btn.ghost{background:none; border:1px solid var(--line); color:var(--muted); font-weight:600;}
+  .hint{font-size:12px; color:var(--muted); margin-top:10px;}
+  .note{font-size:13px; margin-top:12px; min-height:18px;}
+  .note.err{color:var(--crimson);}
+  .note.ok{color:var(--gold-soft);}
+  .hidden{display:none;}
+
+  .wheel-wrap{position:relative; width:min(320px,80vw); aspect-ratio:1/1; margin:10px auto 0;}
+  #wheel{width:100%; height:100%; border-radius:50%; border:6px solid var(--gold);
+    box-shadow:0 0 0 4px #141414, 0 20px 50px rgba(0,0,0,.5);}
+  .pointer{
+    position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+    border-left:14px solid transparent; border-right:14px solid transparent;
+    border-top:26px solid var(--crimson); filter:drop-shadow(0 3px 3px rgba(0,0,0,.5)); z-index:3;
+  }
+  .hub{position:absolute; top:50%; left:50%; width:54px; height:54px; margin:-27px 0 0 -27px;
+    background:#141414; border:4px solid var(--gold); border-radius:50%; z-index:2;
+    display:grid; place-items:center; font-size:10px; letter-spacing:1px; color:var(--gold-soft);}
+  .prize{
+    text-align:center; margin-top:26px; padding:22px; border:1px dashed var(--gold);
+    border-radius:16px; background:rgba(201,162,39,.08);
+  }
+  .prize .big{font-size:26px; font-weight:800; color:var(--gold-soft); letter-spacing:1px;}
+  .prize .code{
+    display:inline-block; margin-top:10px; font-family:"Courier New",monospace; font-size:20px;
+    letter-spacing:3px; background:#141414; border:1px solid var(--line); padding:8px 16px; border-radius:10px;
+  }
+  .prize small{display:block; color:var(--muted); margin-top:10px;}
+
+  /* ---------- Page 3: embedded game ---------- */
+  .game-frame{width:100%; max-width:440px; margin:0 auto; aspect-ratio:9/16;
+    border:1px solid var(--line); border-radius:18px; overflow:hidden; background:#000;}
+  .game-frame iframe{width:100%; height:100%; border:0; display:block;}
+  footer{text-align:center; color:var(--muted); font-size:12px; padding:24px; border-top:1px solid var(--line);}
+  .disclaimer{margin-top:30px; font-size:11px; color:#6a665c; text-align:center; letter-spacing:1px;}
+
+  /* ---------- mobile ---------- */
+  @media (max-width:720px){
+    header{flex-direction:column; gap:12px; padding:14px 16px;}
+    .brand{font-size:18px; letter-spacing:4px;}
+    nav{width:100%; justify-content:center;}
+    nav button{padding:8px 12px; font-size:12px; letter-spacing:.5px;}
+    main{padding:26px 16px 64px;}
+    h1.title{font-size:26px;}
+    p.lead{font-size:14px; margin-bottom:26px;}
+    .hero{padding:22px; gap:20px;}
+    .hero h2{font-size:22px;}
+    #hero-watch{width:100%; text-align:center;}
+    #hero-watch>div{margin:0 auto;}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
+    .watch{padding:16px;}
+    .watch svg{width:104px; height:104px;}
+    .panel{padding:22px 18px;}
+    .prize .big{font-size:21px;}
+    .prize .code{font-size:16px; letter-spacing:2px; word-break:break-all;}
+    .game-frame{max-width:none;}
+    .carousel{margin-bottom:26px;}
+    .slides img{height:200px;}
+    .c-nav{width:36px; height:36px; font-size:20px;}
+    .coll-grid{grid-template-columns:repeat(2,1fr); gap:12px;}
+    .prod-grid{grid-template-columns:repeat(2,1fr); gap:12px;}
+    .prod .nm{font-size:12.5px; min-height:34px;}
+    .modal-card{flex-direction:column; max-height:90vh;}
+    .modal-media{flex:0 0 210px; align-self:auto;}
+    .modal-body{padding:22px;}
+  }
+  @media (max-width:380px){
+    nav button{padding:7px 9px;}
+    h1.title{font-size:23px;}
+  }
+
+  /* ---------- 1080 x 1920 portrait kiosk / standee : full-screen, no scroll ---------- */
+  @media (min-width:1000px) and (orientation:portrait){
+    html,body{height:100%; overflow:hidden;}
+    body{background:#000;}
+
+    header{position:fixed; top:0; left:0; right:0; z-index:30; border:0;
+      background:linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.15) 70%, transparent);
+      padding:24px 44px; backdrop-filter:none;}
+    .brand{font-size:30px; letter-spacing:7px;}
+    nav{gap:8px;}
+    nav button{font-size:15px; padding:12px 18px; letter-spacing:1px;
+      background:rgba(0,0,0,.35);}
+    nav button.active{background:var(--gold);}
+
+    main{max-width:none; margin:0; padding:0; height:100vh; overflow:hidden;}
+    .page{padding:0;}
+    .page.active{display:flex; flex-direction:column; height:100vh; overflow:hidden;}
+
+    /* ---- Page 1 : full-bleed carousel ---- */
+    #page-watches .title, #page-watches .lead, #coll-grid{display:none;}
+    #page-watches .carousel{flex:1; min-height:0; margin:0; border:0; border-radius:0; background:#000;}
+    #page-watches .slides,
+    #page-watches .slides a{height:100%;}
+    #page-watches .slides img{width:100%; height:100%; object-fit:cover;}
+    #page-watches .c-nav{width:60px; height:60px; font-size:32px;}
+    #page-watches .c-nav.prev{left:26px;} #page-watches .c-nav.next{right:26px;}
+    #page-watches .dots{bottom:44px;} .dots i{width:12px; height:12px;} .dots i.on{width:32px;}
+
+    /* ---- shared inner pages ---- */
+    #page-spin, #page-products{
+      align-items:center; justify-content:flex-start; padding:150px 60px 50px; overflow:hidden;}
+    #page-spin{justify-content:center; padding-top:120px;}
+    h1.title{font-size:52px; margin:0 0 10px; text-align:center;}
+    p.lead{font-size:22px; margin:0 0 40px; text-align:center; line-height:1.5;}
+
+    /* ---- Page 2 : spin ---- */
+    .panel{max-width:720px; padding:48px; border-radius:32px;}
+    label{font-size:16px; margin-bottom:12px; letter-spacing:3px;}
+    input{font-size:24px; padding:22px 24px; border-radius:16px;}
+    .btn{font-size:22px; padding:22px; border-radius:16px; margin-top:24px;}
+    .btn.ghost{padding:16px;}
+    .hint{font-size:17px; margin-top:16px;} .note{font-size:19px; margin-top:18px;}
+    .wheel-wrap{width:540px; margin-top:16px;}
+    #wheel{border-width:9px;}
+    .pointer{border-left-width:22px; border-right-width:22px; border-top-width:42px; top:-11px;}
+    .hub{width:92px; height:92px; margin:-46px 0 0 -46px; border-width:5px; font-size:15px; letter-spacing:2px;}
+    .prize{margin-top:28px; padding:30px; border-radius:22px;}
+    .prize .big{font-size:32px;}
+    .prize .code{font-size:26px; margin-top:14px; padding:14px 24px; letter-spacing:3px;}
+    .prize small{font-size:16px; margin-top:14px;}
+    .disclaimer{font-size:15px; margin-top:26px;}
+
+    /* ---- Page 3 : play (full-bleed game) ---- */
+    #page-play .title, #page-play .lead{display:none;}
+    #page-play{padding:88px 0 0;}
+    #page-play .game-frame{flex:1; min-height:0; width:100%; max-width:none;
+      margin:0; border:0; border-radius:0; aspect-ratio:auto;}
+
+    /* ---- Page 4 : products (4 x 2, no scroll) ---- */
+    .prod-grid{grid-template-columns:repeat(4,1fr); gap:20px; width:100%; max-width:1000px;}
+    .prod{border-radius:16px;}
+    .prod .body{padding:14px;}
+    .prod .nm{font-size:14px; min-height:38px;}
+    .prod .sb{font-size:12px;}
+    .prod .pr{font-size:16px; margin-top:8px;}
+    .prod .pr s{font-size:13px;} .prod .pr em{font-size:12px;}
+    #page-products .disclaimer{font-size:14px; margin-top:26px;}
+
+    footer{display:none;}
+
+    /* ---- modal ---- */
+    .modal-card{max-width:880px;}
+    .modal-media{flex:0 0 380px;}
+    .modal-body{padding:44px;}
+    .modal-body .m-sub{font-size:14px;}
+    .modal-body h3{font-size:30px;}
+    .m-price{font-size:28px;}
+    .m-price s{font-size:19px;} .m-price em{font-size:16px;}
+    .modal-body p{font-size:18px;}
+    .chips b{font-size:15px; padding:9px 16px;}
+    .modal-x{width:42px; height:42px; font-size:24px;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">TITAN<span>.</span></div>
+  <nav>
+    <button data-page="watches" class="active">Watches</button>
+    <button data-page="spin">Lucky Spin</button>
+    <button data-page="play">Play &amp; Win</button>
+    <button data-page="products">Products</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ PAGE 1 : WATCHES ============ -->
+  <section id="page-watches" class="page active">
+    <div class="carousel" id="carousel">
+      <div class="slides" id="slides"></div>
+      <button class="c-nav prev" id="cPrev" aria-label="Previous">‹</button>
+      <button class="c-nav next" id="cNext" aria-label="Next">›</button>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <h1 class="title">Featured <b>Collections</b></h1>
+    <p class="lead">A handpicked lineup from the Fastrack world of watches.</p>
+    <div class="coll-grid" id="coll-grid"></div>
+  </section>
+
+  <!-- ============ PAGE 2 : LUCKY SPIN ============ -->
+  <section id="page-spin" class="page">
+    <h1 class="title">Lucky <b>Spin</b></h1>
+    <p class="lead">Verify your mobile number, then spin the wheel for an instant Titan offer.</p>
+
+    <div class="panel" id="spin-panel">
+      <!-- gate step 1 -->
+      <div id="gate-phone">
+        <label for="mobile">Mobile number</label>
+        <input id="mobile" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number" />
+        <button class="btn" id="sendOtp">Send OTP</button>
+        <div id="note1" class="note"></div>
+      </div>
+
+      <!-- gate step 2 -->
+      <div id="gate-otp" class="hidden">
+        <label for="otp">Enter OTP</label>
+        <input id="otp" type="text" inputmode="numeric" maxlength="4" placeholder="4-digit code" />
+        <button class="btn" id="verifyOtp">Verify &amp; Unlock</button>
+        <button class="btn ghost" id="editNo">Change number</button>
+        <div class="hint">Demo code: <b>1234</b></div>
+        <div id="note2" class="note"></div>
+      </div>
+
+      <!-- wheel -->
+      <div id="gate-wheel" class="hidden">
+        <div class="wheel-wrap">
+          <div class="pointer"></div>
+          <canvas id="wheel" width="900" height="900"></canvas>
+          <div class="hub">SPIN</div>
+        </div>
+        <button class="btn" id="spinBtn">Spin the wheel</button>
+        <div id="prize" class="prize hidden">
+          <div class="big" id="prizeText"></div>
+          <div class="code" id="prizeCode"></div>
+          <small>Show this code at any Titan World store or use it at checkout.</small>
+          <button class="btn ghost" id="restartBtn" style="margin-top:16px">Start again</button>
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer">Demo experience — no real SMS is sent and no offer is redeemable.</p>
+  </section>
+
+  <!-- ============ PAGE 3 : PLAY & WIN ============ -->
+  <section id="page-play" class="page">
+    <h1 class="title">Play &amp; <b>Win</b></h1>
+    <p class="lead">Play <b>Titan Time Rush</b> right here — catch the falling watches before time runs out
+       and unlock a bonus discount code.</p>
+    <div class="game-frame">
+      <iframe id="gameFrame" src="game.html" title="Titan Time Rush" allow="fullscreen"></iframe>
+    </div>
+  </section>
+
+  <!-- ============ PAGE 4 : PRODUCTS ============ -->
+  <section id="page-products" class="page">
+    <h1 class="title">Our <b>Watches</b></h1>
+    <p class="lead">Tap any watch for the full story, specs and price.</p>
+    <div class="prod-grid" id="prod-grid"></div>
+    <p class="disclaimer">Product images, names &amp; prices sourced from fastrack.in for this demo.</p>
+  </section>
+</main>
+
+<!-- product detail modal -->
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <button class="modal-x" id="modalX" aria-label="Close">×</button>
+    <div class="modal-media"><img id="mImg" alt="" /></div>
+    <div class="modal-body">
+      <div class="m-sub" id="mSub"></div>
+      <h3 id="mName"></h3>
+      <div class="m-price"><span id="mPrice"></span> <s id="mMrp"></s> <em id="mOff"></em></div>
+      <p id="mInfo"></p>
+      <div class="chips" id="mSpecs"></div>
+      <button class="btn" onclick="go('spin');closeModal()">Get an offer on this →</button>
+    </div>
+  </div>
+</div>
+
+<footer>Titan demo · built for presentation purposes only</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const KIOSK = window.matchMedia('(min-width:1000px) and (orientation:portrait)').matches;
+
+/* ---------- navigation ---------- */
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
+  $('page-'+page).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('nav button').forEach(b=> b.onclick=()=>go(b.dataset.page));
+
+/* ---------- watch SVG factory ---------- */
+function watchSVG(faceColor, strapColor, accent){
+  return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="46" y="2"  width="28" height="34" rx="8" fill="${strapColor}"/>
+    <rect x="46" y="84" width="28" height="34" rx="8" fill="${strapColor}"/>
+    <circle cx="60" cy="60" r="34" fill="#0c0c0c" stroke="${accent}" stroke-width="3"/>
+    <circle cx="60" cy="60" r="27" fill="${faceColor}"/>
+    <circle cx="60" cy="60" r="2.6" fill="${accent}"/>
+    <line x1="60" y1="60" x2="60" y2="42" stroke="${accent}" stroke-width="3" stroke-linecap="round"/>
+    <line x1="60" y1="60" x2="73" y2="66" stroke="${accent}" stroke-width="3" stroke-linecap="round"/>
+    <g stroke="${accent}" stroke-width="2">
+      <line x1="60" y1="35" x2="60" y2="40"/><line x1="60" y1="80" x2="60" y2="85"/>
+      <line x1="35" y1="60" x2="40" y2="60"/><line x1="80" y1="60" x2="85" y2="60"/>
+    </g>
+  </svg>`;
+}
+// image fallback (used if a fastrack.in image is blocked / offline)
+const FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+   <rect width="120" height="120" fill="#1c1c25"/>${watchSVG("#1c1305","#c9a227","#e7c86b")}</svg>`);
+const onImgErr = "this.onerror=null;this.src='"+FALLBACK+"';this.style.mixBlendMode='normal';";
+
+const FT = "https://www.fastrack.in/dw/image/v2/BKDD_PRD/on/demandware.static/-/Library-Sites-FastrackSharedLibrary/default/";
+
+const BANNERS = [
+  {img:FT+"dwc2bda4fe/images/homepage/mobile/FT_CC_vyb_m.jpg",              label:"Vyb by Fastrack"},
+  {img:FT+"dw44790c6c/images/homepage/mobile/FT_CC_hype_adventure_m.jpg",   label:"Hype Adventure"},
+  {img:FT+"dwf8aea6a7/images/homepage/mobile/FT_CC_wild_m.jpg",             label:"Wild"},
+];
+const COLLECTIONS = [
+  {img:FT+"dw8c3d7c3e/images/homepage/mobile/FT_gelato_m.jpg",      name:"Gelato"},
+  {img:FT+"dwc2bda4fe/images/homepage/mobile/FT_CC_vyb_m.jpg",      name:"Vyb"},
+  {img:FT+"dw880a2627/images/homepage/mobile/FT_CC_OVERDRIVE_M.jpg",name:"Overdrive"},
+  {img:FT+"dw44790c6c/images/homepage/mobile/FT_CC_hype_adventure_m.jpg", name:"Hype Adventure"},
+  {img:FT+"dw35b14d41/images/homepage/mobile/FT_CC_GAMBIT_M.jpg",   name:"Gambit"},
+  {img:FT+"dwde1f51b6/images/homepage/mobile/FT_CC_UFO_m.jpg",      name:"UFO"},
+  {img:FT+"dwf8aea6a7/images/homepage/mobile/FT_CC_wild_m.jpg",     name:"Wild"},
+  {img:FT+"dw75da3627/images/homepage/mobile/Automatics_M.jpg",     name:"Automatics"},
+];
+
+/* ---------- banner carousel ---------- */
+// on the 1080x1920 kiosk, show every banner + collection image full-screen, cropped to 1080x1920
+const kioskURL = u => u + (u.includes('?')?'&':'?') + 'sw=1080&sh=1920&sm=cut';
+const SLIDES = KIOSK
+  ? [...BANNERS, ...COLLECTIONS.map(c=>({img:c.img, label:c.name}))]
+  : BANNERS;
+$('slides').innerHTML = SLIDES.map(b=>{
+  const src = KIOSK ? kioskURL(b.img) : b.img;
+  return `<a onclick="go('products')"><img src="${src}" alt="${b.label}" onerror="${onImgErr}"></a>`;
+}).join('');
+$('dots').innerHTML = SLIDES.map((_,i)=>`<i data-i="${i}"></i>`).join('');
+let ci = 0;
+function setSlide(i){
+  ci = (i + SLIDES.length) % SLIDES.length;
+  $('slides').style.transform = `translateX(-${ci*100}%)`;
+  document.querySelectorAll('#dots i').forEach((d,k)=>d.classList.toggle('on', k===ci));
+}
+$('cPrev').onclick = ()=>{ setSlide(ci-1); rearm(); };
+$('cNext').onclick = ()=>{ setSlide(ci+1); rearm(); };
+document.querySelectorAll('#dots i').forEach(d=> d.onclick=()=>{ setSlide(+d.dataset.i); rearm(); });
+let timer = setInterval(()=>setSlide(ci+1), 3800);
+function rearm(){ clearInterval(timer); timer = setInterval(()=>setSlide(ci+1), 3800); }
+setSlide(0);
+
+/* ---------- collection tiles ---------- */
+$('coll-grid').innerHTML = COLLECTIONS.map(c=>
+  `<div class="coll" onclick="go('products')">
+     <img src="${c.img}" alt="${c.name}" onerror="${onImgErr}">
+     <span>${c.name}</span>
+   </div>`).join('');
+
+/* ---------- products ---------- */
+const CAT = "https://www.fastrack.in/dw/image/v2/BKDD_PRD/on/demandware.static/-/Sites-titan-master-catalog/default/";
+const PRODUCTS = [
+  {name:"Fastrack Fastfit", sub:"Grey Dial · Silicone · Unisex", price:995, mrp:1495,
+   img:CAT+"dw08795a5f/images/Fastrack/Catalog/68011PP08_1.jpg?sw=640&sh=640",
+   specs:["Quartz analog","Silicone strap","Water resist 30m","39 mm case"],
+   info:"A featherlight everyday watch with a clean grey dial and a soft silicone strap made for all-day wear."},
+  {name:"Fastrack Stunners", sub:"Blue Dial · Leather · Men", price:2495, mrp:2995,
+   img:CAT+"dw54d801ce/images/Fastrack/Catalog/3255NL03_1.jpg?sw=640&sh=640",
+   specs:["Quartz analog","Genuine leather","Water resist 50m","43 mm case"],
+   info:"A sunray blue dial on a tan leather strap — smart enough for work, relaxed enough for the weekend."},
+  {name:"Fastrack Classic Steel", sub:"Black Dial · Stainless Steel · Men", price:3795, mrp:4295,
+   img:CAT+"dw5ddc0e28/images/Fastrack/Catalog/3273NM01_1.jpg?sw=640&sh=640",
+   specs:["Quartz analog","Steel bracelet","Date window","Water resist 50m"],
+   info:"All-black stainless steel with a crisp date display. One of Fastrack's best-selling everyday watches."},
+  {name:"Fastrack Stunners", sub:"Black Dial · Metal · Men", price:1495, mrp:1995,
+   img:CAT+"dw1b4cbb03/images/Fastrack/Catalog/3278SM05_1.jpg?sw=640&sh=640",
+   specs:["Quartz analog","Metal strap","Slim profile","Water resist 30m"],
+   info:"Bold black dial, brushed metal bracelet and a slim case that slides right under a shirt cuff."},
+  {name:"Fastrack Thor", sub:"Red Multifunction · Metal · Men", price:5595, mrp:6295,
+   img:CAT+"dw3df0c06c/images/Fastrack/Catalog/3286KM01_1.jpg?sw=640&sh=640",
+   specs:["Multifunction quartz","Day / date sub-dials","Steel case","Water resist 50m"],
+   info:"A statement multifunction watch with a fiery red dial and three working sub-dials for day, date and 24-hour."},
+  {name:"Fastrack Vyb Runway", sub:"Rose Gold · Steel · Women", price:1450, mrp:2295,
+   img:CAT+"dwf7bfc6a8/images/Fastrack/Catalog/FV60031WM01W_1.jpg?sw=640&sh=640",
+   specs:["Quartz analog","Rose gold bracelet","34 mm case","Water resist 30m"],
+   info:"From the Vyb by Fastrack line — a shimmering rose-gold bracelet watch built for a party-ready look."},
+  {name:"Fastrack Hype Adventure", sub:"Black Dial · Yellow Silicone · Men", price:1495, mrp:1995,
+   img:CAT+"dw9f12e288/images/Fastrack/Catalog/38169PP03W_1.jpg?sw=640&sh=640",
+   specs:["Quartz analog","Sport silicone strap","44 mm case","Water resist 50m"],
+   info:"A rugged sports watch with a high-contrast yellow strap — made for the trail, the gym and everything after."},
+  {name:"Fastrack Astor FS1 Pro", sub:"Smartwatch · AMOLED · Unisex", price:3999, mrp:5995,
+   img:CAT+"dw8a8d659e/images/Fastrack/Catalog/38151PP01K_1.jpg?sw=640&sh=640",
+   specs:["5 cm AMOLED display","Bluetooth calling","SpO2 & sleep tracking","7-day battery"],
+   info:"A full-featured smartwatch with a large always-on AMOLED screen, Bluetooth calling and health tracking."},
+];
+const inr = n => "₹" + n.toLocaleString('en-IN');
+$('prod-grid').innerHTML = PRODUCTS.map((p,i)=>{
+  const off = Math.round((1 - p.price/p.mrp)*100);
+  return `<div class="prod" onclick="openModal(${i})">
+    <div class="pic"><img src="${p.img}" alt="${p.name}" onerror="${onImgErr}"></div>
+    <div class="body">
+      <div class="nm">${p.name}</div>
+      <div class="sb">${p.sub}</div>
+      <div class="pr">${inr(p.price)} <s>${inr(p.mrp)}</s> <em>${off}% off</em></div>
+    </div>
+  </div>`;
+}).join('');
+
+/* ---------- modal ---------- */
+function openModal(i){
+  const p = PRODUCTS[i];
+  const off = Math.round((1 - p.price/p.mrp)*100);
+  $('mImg').src = p.img; $('mImg').onerror = function(){ this.onerror=null; this.src=FALLBACK; this.style.mixBlendMode='normal'; };
+  $('mSub').textContent = p.sub;
+  $('mName').textContent = p.name;
+  $('mPrice').textContent = inr(p.price);
+  $('mMrp').textContent = inr(p.mrp);
+  $('mOff').textContent = off + "% off";
+  $('mInfo').textContent = p.info;
+  $('mSpecs').innerHTML = p.specs.map(s=>`<b>${s}</b>`).join('');
+  $('modal').classList.remove('hidden');
+}
+function closeModal(){ $('modal').classList.add('hidden'); }
+$('modalX').onclick = closeModal;
+$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+/* ---------- OTP gate ---------- */
+const DEMO_OTP = "1234";
+let mobile = "";
+
+$('mobile').addEventListener('input',e=> e.target.value=e.target.value.replace(/\D/g,''));
+$('otp').addEventListener('input',e=> e.target.value=e.target.value.replace(/\D/g,''));
+
+$('sendOtp').onclick = ()=>{
+  const n1 = $('note1'); n1.className='note';
+  const v = $('mobile').value.trim();
+  if(v.length!==10){ n1.className='note err'; n1.textContent='Enter a valid 10-digit mobile number.'; return; }
+  mobile = v;
+  $('gate-phone').classList.add('hidden');
+  $('gate-otp').classList.remove('hidden');
+  $('note2').className='note ok';
+  $('note2').textContent='OTP sent to +91 '+mobile+' (demo).';
+  $('otp').focus();
+};
+$('editNo').onclick = ()=>{
+  $('gate-otp').classList.add('hidden');
+  $('gate-phone').classList.remove('hidden');
+  $('otp').value=''; $('note2').textContent='';
+};
+$('verifyOtp').onclick = ()=>{
+  const n2 = $('note2'); n2.className='note';
+  if($('otp').value.trim() !== DEMO_OTP){ n2.className='note err'; n2.textContent='Incorrect code. Use 1234 for the demo.'; return; }
+  $('gate-otp').classList.add('hidden');
+  $('gate-wheel').classList.remove('hidden');
+  $('prize').classList.add('hidden');
+  $('spinBtn').disabled = false;
+  $('spinBtn').textContent = "Spin the wheel";
+  angle = 0;
+  drawWheel(0);
+};
+
+/* ---------- spin wheel ---------- */
+const SEGMENTS = [
+  {label:"5% OFF",       tag:"5",     color:"#1c1c25"},
+  {label:"10% OFF",      tag:"10",    color:"#2a2a36"},
+  {label:"₹500 Voucher", tag:"V500",  color:"#1c1c25"},
+  {label:"20% OFF",      tag:"20",    color:"#2a2a36"},
+  {label:"Free Strap",   tag:"STRAP", color:"#1c1c25"},
+  {label:"15% OFF",      tag:"15",    color:"#2a2a36"},
+  {label:"Spin Again",   tag:"AGAIN", color:"#1c1c25"},
+  {label:"25% OFF",      tag:"25",    color:"#2a2a36"},
+];
+const cv = $('wheel'), cx = cv.getContext('2d');
+const R = cv.width/2, N = SEGMENTS.length, ARC = (Math.PI*2)/N;
+let angle = 0, spinning = false;
+
+function drawWheel(a){
+  cx.clearRect(0,0,cv.width,cv.height);
+  cx.save(); cx.translate(R,R); cx.rotate(a);
+  for(let i=0;i<N;i++){
+    const start = i*ARC;
+    cx.beginPath(); cx.moveTo(0,0);
+    cx.arc(0,0,R-10,start,start+ARC); cx.closePath();
+    cx.fillStyle = SEGMENTS[i].color; cx.fill();
+    cx.strokeStyle = "#c9a227"; cx.lineWidth = 3; cx.stroke();
+    cx.save();
+    cx.rotate(start+ARC/2); cx.textAlign="right"; cx.fillStyle="#f4f1e9";
+    cx.font = "bold " + Math.round(R*0.10) + "px Segoe UI, Arial";
+    cx.fillText(SEGMENTS[i].label, R*0.88, R*0.035);
+    cx.restore();
+  }
+  cx.restore();
+}
+function couponFor(seg){
+  const rnd = Math.random().toString(36).slice(2,6).toUpperCase();
+  if(seg.tag==="AGAIN") return null;
+  if(seg.tag==="V500")  return "TITAN-GIFT500-"+rnd;
+  if(seg.tag==="STRAP") return "TITAN-STRAP-"+rnd;
+  return "TITAN"+seg.tag+"-"+rnd;
+}
+$('spinBtn').onclick = ()=>{
+  if(spinning) return;
+  spinning = true; $('spinBtn').disabled = true; $('prize').classList.add('hidden');
+  const winIdx = Math.floor(Math.random()*N);
+  const turns = 5 + Math.floor(Math.random()*3);
+  // pointer is at top (-90deg). center of winning segment must land there.
+  const target = (Math.PI*2*turns) + (Math.PI*1.5 - (winIdx*ARC + ARC/2));
+  const start = angle, dur = 4200, t0 = performance.now();
+  (function frame(now){
+    const p = Math.min(1,(now-t0)/dur);
+    const ease = 1 - Math.pow(1-p,3);
+    angle = start + (target-start)*ease;
+    drawWheel(angle);
+    if(p<1){ requestAnimationFrame(frame); }
+    else {
+      spinning = false;
+      const seg = SEGMENTS[winIdx];
+      const code = couponFor(seg);
+      $('spinBtn').disabled = true;
+      $('spinBtn').textContent = "Spin the wheel";
+      $('prize').classList.remove('hidden');
+      if(!code){
+        $('prizeText').textContent = "So close! Better luck next time.";
+        $('prizeCode').style.display = "none";
+      } else {
+        $('prizeText').textContent = "You won " + seg.label + "!";
+        $('prizeCode').style.display = "inline-block";
+        $('prizeCode').textContent = code;
+      }
+    }
+  })(t0);
+};
+
+/* after a spin, "Start again" sends the next person back through login */
+$('restartBtn').onclick = ()=>{
+  $('gate-wheel').classList.add('hidden');
+  $('gate-otp').classList.add('hidden');
+  $('gate-phone').classList.remove('hidden');
+  $('mobile').value = ''; $('otp').value = '';
+  $('note1').textContent = ''; $('note1').className = 'note';
+  $('note2').textContent = ''; $('note2').className = 'note';
+  mobile = '';
+  $('prize').classList.add('hidden');
+  $('spinBtn').disabled = false;
+  $('spinBtn').textContent = "Spin the wheel";
+  angle = 0; drawWheel(0);
+  $('mobile').focus();
+};
+
+/* ---------- embedded game: restart fresh each visit ---------- */
+document.querySelector('nav button[data-page="play"]').addEventListener('click', ()=>{
+  const f = $('gameFrame');
+  f.src = f.src.split('#')[0];
+});
+</script>
+</body>
+</html>
